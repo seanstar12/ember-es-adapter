@@ -1,5 +1,8 @@
 # Ember-ES-Adapter
 [![Build Status](https://travis-ci.org/seanstar12/ember-es-adapter.svg?branch=master)](https://travis-ci.org/seanstar12/ember-es-adapter)
+[![npm version](https://badge.fury.io/js/ember-es-adapter.svg)](https://badge.fury.io/js/ember-es-adapter)
+[![Ember Observer Score](http://emberobserver.com/badges/ember-es-adapter.svg)](http://emberobserver.com/addons/ember-es-adapter)
+
 An adapter written for Elasticsearch and EmberJS.
 
 #### TODO
