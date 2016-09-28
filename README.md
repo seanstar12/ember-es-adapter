@@ -6,6 +6,10 @@
 
 An adapter written for Elasticsearch and EmberJS.
 
+#### Demo
+[S3 Blog](http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/), this shows just the basics. I'm still working on
+getting the ember repo into a stable (credential-free) state.
+
 #### TODO
  - [ ] Add all functionality to the Adapter
  - [ ] Blueprints
