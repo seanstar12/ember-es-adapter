@@ -1,4 +1,5 @@
 # Ember-ES-Adapter
+[![Build Status](https://travis-ci.org/seanstar12/ember-es-adapter.svg?branch=master)](https://travis-ci.org/seanstar12/ember-es-adapter)
 An adapter written for Elasticsearch and EmberJS.
 
 #### TODO

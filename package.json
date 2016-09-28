@@ -1,6 +1,10 @@
 {
   "name": "ember-es-adapter",
   "description": "An elasticsearch adapter for EmberJS.",
+  "author": {
+    "name": "Sean Starnes",
+    "email": "seanstar12@gmail.com"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/seanstar12/ember-es-adapter.git"
@@ -15,6 +19,10 @@
   "engines": {
     "node": ">= 6.4.0"
   },
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  }, 
   "dependencies": {
     "ember-cli-babel": "^5.1.6",
     "ember-get-config": "^0.1.9"
@@ -47,6 +55,7 @@
     "elasticsearch"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "demoURL": "http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/"
   }
 }
