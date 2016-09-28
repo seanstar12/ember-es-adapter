@@ -68,6 +68,6 @@ export default JSONAPIAdapter.extend({
     .then(function(resp) {
       return resp.json();
     });
-  },
+  }
 
 });

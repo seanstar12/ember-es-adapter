@@ -85,18 +85,6 @@ export default Ember.Service.extend({
     return crypto;
   },
 
-  signSigning(service, signedRegion) {
-    service = EsAdapter.serviceName || service;
-
-    var crypto = hmac(
-      signedRegion,
-      service,
-      {hexOutput: true, textInput: false}
-    );
-
-    return crypto;
-  },
-
   calculateSignature() {
     console.log(EsAdapter);
 
