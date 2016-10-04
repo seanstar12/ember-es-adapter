@@ -25,7 +25,7 @@ export default JSONAPIAdapter.extend({
 
     // Default Payload
     payload = { 
-      sort: [ { "_score": "desc" } ], 
+      sort: [ { "date": {"order" : "desc" } } ], 
       from: page * size,
       size: size,
       query: {"match_all":{}}
