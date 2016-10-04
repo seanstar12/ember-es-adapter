@@ -8,7 +8,7 @@ export default DS.JSONAPISerializer.extend({
     payload = {
       data: hits.hits.map(function(hit) {
         return {
-	  type: hit._type,      
+          type: hit._type,      
           id: hit._id,      
           attributes: hit._source,      
         };
@@ -29,7 +29,7 @@ export default DS.JSONAPISerializer.extend({
     payload = {
       data: hits.hits.map(function(hit) {
         return {
-	  type: hit._type,      
+          type: hit._type,      
           id: hit._id,      
           attributes: hit._source,      
         };
