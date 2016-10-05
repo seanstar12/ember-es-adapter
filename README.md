@@ -21,7 +21,68 @@ getting the ember repo into a stable (credential-free) state.
 I'm building a 'static' blog written in Ember with an Elasticsearch backend.
 This is one of the key aspects to the project.
 
-#### A Rough Example
+#### ElasticSearch Query Builder
+```javascript
+import esQuery from "ember-es-adapter/utils/es-query-builder";
+let es = new esQuery({size: 2, from: 200});
+//  es = new esQuery(); // or no options
+es.addBool({'match': {"title": "Third"}}); //complex queries
+es.addBoolMatchField('title', 'Third'); //same as above, just simple
+es.addSort({'title':'asc'}); //add sort: can be complex
+es.addSort("title"); //add sort: or simple
+let query = es.buildQuery();
+```
+
+  * Using the Query Builder
+    ```javascript
+    //Constructor available params. All Optional
+    {
+      sort: "title",        // string  
+      sortType: "asc:desc", // string  will not be used if sort is not defined
+      from: 0,              // int  for offset
+      size: 10,             // int  for length to return default: 20
+    } 
+
+    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+
+    let es = new esQuery({size: 14, from: 200});
+    ```
+  * Building a Query
+    ```javascript
+    //Params
+    .addBool(query, type) //type optional
+    {
+      query: {},            // object  
+      type: optional,       // string defaults to 'must' if not supplied
+                            // sets the type of query [must,filter,must_not,should]
+    } 
+
+    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+
+    let es = new esQuery();
+
+    //equivalent queries, latter allows for more complex queries
+    es.addBoolMatchField('title', 'Third');
+    es.addBool({'match': {"title": "Third"}});
+    ```
+  * Adding a Sort
+    ```javascript
+    //Adds sort option. This can be ran multiple times if more specific sorts
+    // are needed. 
+    {
+      sort: "title" || {},    // string || object  
+    } 
+
+    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+
+    let es = new esQuery();
+
+    es.addSort('title');
+    es.addSort({ "name": "asc" });
+    es.addSort({ "post_date": { "order": "asc"} });
+    ```
+
+#### A Rough Example of the adapter
 `your_app/adapters/post.js`
 
 ```
