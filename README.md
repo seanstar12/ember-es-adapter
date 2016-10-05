@@ -22,16 +22,17 @@ I'm building a 'static' blog written in Ember with an Elasticsearch backend.
 This is one of the key aspects to the project.
 
 #### ElasticSearch Query Builder
-```javascript
-import esQuery from "ember-es-adapter/utils/es-query-builder";
-let es = new esQuery({size: 2, from: 200});
-//  es = new esQuery(); // or no options
-es.addBool({'match': {"title": "Third"}}); //complex queries
-es.addBoolMatchField('title', 'Third'); //same as above, just simple
-es.addSort({'title':'asc'}); //add sort: can be complex
-es.addSort("title"); //add sort: or simple
-let query = es.buildQuery();
-```
+  * Useage example
+    ```javascript
+    import esQuery from "ember-es-adapter/utils/es-query-builder";
+    let es = new esQuery({size: 2, from: 200});
+    //  es = new esQuery(); // or no options
+    es.addBool({'match': {"title": "Third"}}); //complex queries
+    es.addBoolMatchField('title', 'Third'); //same as above, just simple
+    es.addSort({'title':'asc'}); //add sort: can be complex
+    es.addSort("title"); //add sort: or simple
+    let query = es.buildQuery();
+    ```
 
   * Using the Query Builder
     ```javascript
@@ -87,7 +88,7 @@ let query = es.buildQuery();
 
 ```
 import Ember from "ember";
-import ES from 'ember-es-adapter/adapters/elasticsearch';
+import ES from 'ember-es-adapter/adapters/adapter';
 import fetch from "ember-network/fetch";
 import config from 'ember-get-config';
 
@@ -180,5 +181,12 @@ export default ES.extend({
       return resp;
     });
   }
+});
+```
+
+```javascript
+`your_app/serializers/post.js`
+import ES from 'ember-es-adapter/serializer/serializer';
+export default ES.extend({
 });
 ```
