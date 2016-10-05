@@ -22,7 +22,7 @@ getting the ember repo into a stable (credential-free) state.
   * Adapter 
 
   ```javascript
-  `your_app/adapters/yourAdapter.js`
+  `your_app/adapters/your_adapter.js`
   import Es from 'ember-es-adapter/adapters/adapter';
   import config from 'ember-get-config';
 
@@ -35,7 +35,7 @@ getting the ember repo into a stable (credential-free) state.
   * Serializer 
 
   ```javascript
-  `your_app/serializers/post.js`
+  `your_app/serializers/your_serializer.js`
   import Es from 'ember-es-adapter/serializer/serializer';
   export default Es.extend({
   });
