@@ -97,8 +97,8 @@ getting the ember repo into a stable (credential-free) state.
   //let the adapter build the query
   export default Ember.Route.extend({
     model(params) {
-      let esParams = {sort: 'date', 'sortType': 'desc'};
-      return this.store.query('post', {esParams: esParams, params: params});
+      params['esParams'] = {sort: 'date', 'sortType': 'desc'};
+      return this.store.query('post', params);
     }
   });
 
