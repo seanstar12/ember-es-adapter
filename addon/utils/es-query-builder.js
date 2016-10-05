@@ -33,14 +33,35 @@ let esQueryBuilder = function(opts) {
 * @return {Object} default = { 'sortType': 'desc', 'sort': '_score' };
 */
 esQueryBuilder.prototype._options = function(options) {
-  options = options ? options : {};
-
   let defaults = {
     'from': 0,
     'size': defaultQuerySize
   };
 
-  return extend(defaults, options);
+  options = options ? options : {};
+  options = extend(defaults, options);
+
+  if (options.page || !options.from) {
+    options.from = this._getOffsetFromPage(options.page, options.size);
+  }
+
+  return options;
+};
+
+/**
+* Private:  @TODO: needs test
+* Convert page to offset for use with pagination
+*
+* @method _getOffsetFromPage
+* @private
+* @param {Integer} page Page that request is on.
+* @param {Integer} size Size of pages (optional).
+* @return {Integer} offset Returns offset.
+*/
+esQueryBuilder.prototype._getOffsetFromPage = function(page, size) {
+  size = size ? size : defaultQuerySize;
+
+  return page * size;
 };
 
 /**

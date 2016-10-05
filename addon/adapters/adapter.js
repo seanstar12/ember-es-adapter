@@ -1,4 +1,6 @@
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+import extend from 'ember-es-adapter/utils/extend';
 import Ember from 'ember';
 import config from 'ember-get-config';
 
@@ -7,67 +9,60 @@ const {environment} = config;
 export default JSONAPIAdapter.extend({
   config: environment,
 
-  query: function(store, type, params) {
-    var url = [this.buildURL(type.modelName), '_search'].join('/');
-    var page = 0,
-        size = 10,
-        payload;
+  query(store, type, params) {
+    console.log('query!');
+    console.log(params);
+    const url = [this.buildURL(type.modelName), '_search'].join('/');
+    let query = Ember.get(params, 'esQuery') || null,
+        esParams = Ember.get(params, 'esParams') || null,
+        _params = this.filter(params); // Filter out params we don't know how to handle
 
-    console.log('[adapter][lesson]:[query]: ' + JSON.stringify(params));
-    console.log(this.get('config'));
+    // No EsQuery object was supplied, so we'll make a new one. This
+    // allows us to build the query outside of the adapter if needed.
+    if (Ember.isEmpty(query)) {
+      // Initiate new instance with params if supplied
+      // Inject _params into params object 
+      let es = new EsQuery(extend(esParams, _params));
 
-    if (params.page) {
-      page = params.page - 1;
+      // Add in query if supplied in params;
+      if (params.query) {
+        es.addBool({"query_string": {"query": params.query}});
+      }
+      query = es.buildQuery();
     }
-    if (params.per_page) {
-      size = params.per_page;
-    }
-
-    // Default Payload
-    payload = { 
-      sort: [ { "date": {"order" : "desc" } } ], 
-      from: page * size,
-      size: size,
-      query: {"match_all":{}}
-    };
-
-    if (params.sort) {
-      var [ field, sort ] = params.sort.split('-');
-
-      payload.sort = [];
-      payload.sort.push({});
-      payload.sort[0][field] = {
-        missing: "_last", 
-        order : sort
-      };
-    }
-    //console.log(params);
-
-    if (params.query) {
-      payload.query = { "query_string": { "query": params.query } };
-    }
-    if (params.aggs) {
-      payload.aggs = params.aggs;
-    }
-    if (params.filter) {
-      payload.filter = params.filter;
-    }
-
-    if (Ember.isPresent(params.alt_query)) {
-      payload = params.alt_query;
-      //console.log('[adapter][lesson]:[query][alt_query]: ');
-      //console.log(payload);
-    }
-      //console.log('[adapter][lesson]:[query][alt_query]: ');
-      //console.log(payload);
 
     return fetch(url, {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(query)
     })
     .then(function(resp) {
       return resp.json();
     });
+  },
+
+  findAll(store, type) {
+    const url = [this.buildURL(type.modelName), '_search'].join('/');
+
+    let es = new EsQuery({ 'size': 10000 });
+
+    return fetch(url, {
+      method: "post",
+      body: JSON.stringify(es.buildQuery())
+    })
+    .then(function(resp) {
+      return resp.json();
+    });
+  },
+
+  filter(obj) {
+    let allowed = ['size', 'from', 'query', 'page'];
+    
+    for (let i in obj) {
+      if (allowed.indexOf(i) < 0) {
+        delete obj[i];
+      }
+    }
+    return obj;
   }
 
 });
