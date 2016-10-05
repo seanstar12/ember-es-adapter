@@ -10,8 +10,6 @@ export default JSONAPIAdapter.extend({
   config: environment,
 
   query(store, type, params) {
-    console.log('query!');
-    console.log(params);
     const url = [this.buildURL(type.modelName), '_search'].join('/');
     let query = Ember.get(params, 'esQuery') || null,
         esParams = Ember.get(params, 'esParams') || null,
