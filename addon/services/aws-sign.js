@@ -25,7 +25,7 @@ export default Ember.Service.extend({
     
     
 
-    console.log(reqParams);
+    //console.log(reqParams);
     return data;
   },
 
@@ -48,7 +48,6 @@ export default Ember.Service.extend({
   //},
 
   signRegion(kDate) {
-    console.log('sign region');
     var region = EsAdapter.regionName;
 
     return hmac(kDate, region, {hexOutput: false, textInput: false});
@@ -65,7 +64,7 @@ export default Ember.Service.extend({
 
   signMe(array) {
     array = array || [];
-    console.log('signMe'); 
+    //console.log('signMe'); 
     //console.log(array);
 
     var date = this.convertDateAmazon(EsAdapter.date || new Date());
