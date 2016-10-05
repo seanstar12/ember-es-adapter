@@ -265,6 +265,13 @@ esQueryBuilder.prototype.addBoolMatchField = function(fieldName, value) {
   this._addBool(bool, 'must');
 };
 
+/**
+* Public: 
+* Builds the return query.
+*
+* @method buildQuery
+* @return {Object} Returns full query object.
+*/
 esQueryBuilder.prototype.buildQuery = function() {
   if (!this._defaultSortSet) {
     this._addDefaultSort();

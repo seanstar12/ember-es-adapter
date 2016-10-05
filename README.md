@@ -10,7 +10,7 @@ An adapter written for Elasticsearch and EmberJS.
 [S3 Blog](http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/), this shows just the basics. I'm still working on
 getting the ember repo into a stable (credential-free) state.
 
-#### On the hotplate for 0.1.0
+#### On the hotplate for [0.1.0]
   - [ ] Add functionality to the Adapter
     - [ ] findMany
     - [ ] queryRecord
@@ -29,6 +29,18 @@ getting the ember repo into a stable (credential-free) state.
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
+  - [ ] Es-Query-Builder
+    - [ ] Add filter function 
+    - [ ] Add mustNot function 
+    - [ ] Add should function 
+    - [x] Add sorts
+    - [x] Add use of default sort
+    - [x] Allow params from route and filtered params
+    - [x] Add prototype for detecting page (pagination API)
+    - [x] Add must function 
+    - [x] Add bool query template
+    - [x] Add documentation (yui comments)
+    - [x] Make it work
   - [ ] Make all the tests
     - [ ] The adapter
     - [ ] The serializer
@@ -45,6 +57,9 @@ getting the ember repo into a stable (credential-free) state.
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
+  - [ ] Es-Query-Builder
+    - [ ] Add Aggregation functionality
+    - [ ] Add ES versioning
   - [ ] Finish up the AWS request signer
   - [ ] Make all the tests
     - [ ] The extend utility
