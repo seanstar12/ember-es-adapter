@@ -17,6 +17,7 @@ const defaultQuerySize = 20;
 let esQueryBuilder = function(opts) {
   opts = opts ? opts : {};
 
+  this.opts = JSON.parse(JSON.stringify(opts)); //clone input options
   this.sort = [];
   this.options = this._options(opts);
   this.query = this._templateBoolQuery();
@@ -33,15 +34,17 @@ let esQueryBuilder = function(opts) {
 * @return {Object} default = { 'sortType': 'desc', 'sort': '_score' };
 */
 esQueryBuilder.prototype._options = function(options) {
+  options = options ? options : {};
+  options.esParams = options.esParams ? options.esParams: {};
+
   let defaults = {
     'from': 0,
     'size': defaultQuerySize
   };
 
-  options = options ? options : {};
-  options = extend(defaults, options);
+  options = extend(defaults, options, options.esParams);
 
-  if (options.page || !options.from) {
+  if (options.page) {
     options.from = this._getOffsetFromPage(options.page, options.size);
   }
 
