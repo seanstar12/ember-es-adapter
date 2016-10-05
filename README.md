@@ -10,12 +10,45 @@ An adapter written for Elasticsearch and EmberJS.
 [S3 Blog](http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/), this shows just the basics. I'm still working on
 getting the ember repo into a stable (credential-free) state.
 
-#### TODO
- - [ ] Add all functionality to the Adapter
- - [ ] Blueprints
- - [ ] Finish up the AWS request signer
- - [ ] Figure out how to test the thing
- - [ ] Definitely more...
+#### On the hotplate for 0.1.0
+  - [ ] Add functionality to the Adapter
+    - [ ] findMany
+    - [ ] queryRecord
+    - [ ] createRecord
+    - [ ] deleteRecord
+    - [x] query
+    - [x] findAll
+  - [ ] Add functionality to the Serializer
+    - [ ] normalizeCreateRecordResponse
+    - [ ] normalizeDeleteRecordResponse
+    - [ ] normalizeQueryRecordResponse
+    - [ ] normalizeResponse
+    - [ ] normalizeUpdateRecordResponse
+    - [x] normalizeFindAllResponse
+    - [x] normalizeQueryResponse
+  - [ ] Blueprints
+    - [ ] Adapter
+    - [ ] Serializer
+  - [ ] Make all the tests
+    - [ ] The adapter
+    - [ ] The serializer
+    - [x] The AWS signer
+    - [x] The es-query-builder
+
+#### The gameplan [0.1.5]
+  - [ ] Add functionality to the Adapter
+    - [ ] shouldReloadRecord (If needed)
+    - [ ] shouldReloadAll (If needed)
+  - [ ] Add functionality to the Serializer
+    - [ ] normalizeArrayResponse
+    - [ ] normalizeFindManyResponse
+  - [ ] Blueprints
+    - [ ] Adapter
+    - [ ] Serializer
+  - [ ] Finish up the AWS request signer
+  - [ ] Make all the tests
+    - [ ] The extend utility
+  - [ ] Definitely more...
 
 #### How to use this
 
