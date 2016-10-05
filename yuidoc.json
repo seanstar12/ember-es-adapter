@@ -1,7 +1,7 @@
 {
   "name": "ember-es-adapter",
   "description": "An elasticsearch adapter for EmberJS.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "options": {
     "enabledEnvironments": [
       "development",
