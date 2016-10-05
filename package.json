@@ -10,7 +10,7 @@
     "url": "https://github.com/seanstar12/ember-es-adapter.git"
   },
   "license": "MIT",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "scripts": {
     "build": "ember build",
     "start": "ember server",

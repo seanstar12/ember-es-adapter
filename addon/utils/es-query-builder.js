@@ -49,14 +49,15 @@ esQueryBuilder.prototype._options = function(options) {
 };
 
 /**
-* Private:  @TODO: needs test
+* Private:  
 * Convert page to offset for use with pagination
-*
+* @TODO: needs test
+
 * @method _getOffsetFromPage
 * @private
 * @param {Integer} page Page that request is on.
 * @param {Integer} size Size of pages (optional).
-* @return {Integer} offset Returns offset.
+* @return {Integer} Returns offset.
 */
 esQueryBuilder.prototype._getOffsetFromPage = function(page, size) {
   size = size ? size : defaultQuerySize;
