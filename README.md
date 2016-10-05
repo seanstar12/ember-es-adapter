@@ -70,7 +70,7 @@ getting the ember repo into a stable (credential-free) state.
       }
 
       //building the query, sending to adapter
-      let esQuery = es.buildQuery();
+      params['esQuery'] = es.buildQuery();
       return this.store.query('post', params);
     }
   });
