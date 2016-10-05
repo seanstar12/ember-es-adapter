@@ -27,11 +27,11 @@ export default DS.JSONAPISerializer.extend({
     let hits = payload.hits;
 
     payload = {
-      data: hits.hits.map(function(hit) {
+      data: hits.hits.map(function(item) {
         return {
-          type: hit._type,      
-          id: hit._id,      
-          attributes: hit._source,      
+          type: item._type,
+          id: item._id,
+          attributes: item._source
         };
       }),
       meta: {
