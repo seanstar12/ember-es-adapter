@@ -59,6 +59,7 @@ getting the ember repo into a stable (credential-free) state.
     - [ ] Serializer
   - [ ] Es-Query-Builder
     - [ ] Add Aggregation functionality
+    - [ ] Add MoreLikeThis query
     - [ ] Add ES versioning
   - [ ] Finish up the AWS request signer
   - [ ] Make all the tests
