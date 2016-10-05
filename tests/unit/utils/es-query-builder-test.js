@@ -48,6 +48,18 @@ test('Adds correct sort params', function(assert) {
   assert.deepEqual(es.sort, sorts, "Query sort matches test array.");
 });
 
+test('_getOffsetFromPage', function(assert) {
+  assert.expect(2);
+
+  let es = new EsQuery();
+  let offset = es._getOffsetFromPage(3, 5);
+  
+  assert.equal(offset, 15, "Offset returns correct value");
+
+  offset = es._getOffsetFromPage(3);
+  assert.equal(offset, 60, "Offset returns correct value using default size");
+});
+
 test('Builds Complex Query with sort and constructor', function(assert) {
   let expected = {
     "query": {

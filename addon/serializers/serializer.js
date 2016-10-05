@@ -10,7 +10,7 @@ export default DS.JSONAPISerializer.extend({
         return {
           type: hit._type,      
           id: hit._id,      
-          attributes: hit._source,      
+          attributes: hit._source
         };
       }),
       meta: {
@@ -35,7 +35,7 @@ export default DS.JSONAPISerializer.extend({
         };
       }),
       meta: {
-        total: hits.total,
+        total: hits.total
       }
     };
 
@@ -54,7 +54,7 @@ export default DS.JSONAPISerializer.extend({
       meta: {
         index: payload._index,
         exists: payload.exists,
-        version: payload._version,
+        version: payload._version
       }
     };
 

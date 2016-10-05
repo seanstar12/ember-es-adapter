@@ -1,6 +1,6 @@
 import extend from 'ember-es-adapter/utils/extend';
 
-const defaultQuerySize = 10;
+const defaultQuerySize = 20;
 /**
 * Builds queries for ElasticSearch.
 * Usage: 
@@ -51,7 +51,6 @@ esQueryBuilder.prototype._options = function(options) {
 /**
 * Private:  
 * Convert page to offset for use with pagination
-* @TODO: needs test
 
 * @method _getOffsetFromPage
 * @private
@@ -114,7 +113,7 @@ esQueryBuilder.prototype._templateBoolQuery = function() {
          "must": [],  
          "filter": [],  
          "must_not": [],  
-         "should": [],  
+         "should": []
        }
      }
   };
