@@ -1,5 +1,5 @@
 import config from 'ember-get-config';
-import fetch from 'ember-network/fetch';
+import Ember from 'ember';
 
 /**
 * Queries ElasticSearch to get mappings.
@@ -23,15 +23,15 @@ class EsMapper {
   * e.g. {'post':[{mapping:'body', type:'string'}]}
   */
   getMapping() {
-    let host = this.host,
-        namespace = this.namespace;
-
     if (!this.host || !this.namespace) {
       console.log('[EsMapper][getMapping]: Host or Namespace not defined.');
       return false;
     }
 
-    return new Promise(function(resolve, reject) {
+    let host = this.host,
+        namespace = this.namespace;
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
       fetch(host + '/'+ namespace + '/_mappings')
         .then((resp) => {
           let r = resp.json(),
@@ -72,6 +72,10 @@ class EsMapper {
           });
 
     });
+  }
+
+  getTrue() {
+    return true;
   }
 }
 

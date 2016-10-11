@@ -14,11 +14,11 @@ export default DS.JSONAPISerializer.extend({
   // normalize[X]Response
   //primaryKey: '_id',
 
-  serialize(snapshot, options) {
-    console.log('[es-adapter][serializer]:[serialize]');
-    var json = this._super(...arguments);
-    return json;
-  },
+  //serialize(snapshot, options) {
+  //  console.log('[es-adapter][serializer]:[serialize]');
+  //  var json = this._super(...arguments);
+  //  return json;
+  //},
 
   /**
    * Converts ElasticSearch server responses into the format expected by the JSONAPISerializer.
