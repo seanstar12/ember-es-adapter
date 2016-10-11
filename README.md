@@ -14,22 +14,23 @@ getting the ember repo into a stable (credential-free) state.
   - [ ] Add functionality to the Adapter
     - [ ] findMany
     - [ ] queryRecord
-    - [ ] createRecord
-    - [ ] deleteRecord
+    - [x] createRecord
+    - [x] deleteRecord (Already works with default)
     - [x] query
     - [x] findAll
   - [ ] Add functionality to the Serializer
-    - [ ] normalizeCreateRecordResponse
+    - [x] normalizeCreateRecordResponse (Already works with default)
     - [ ] normalizeDeleteRecordResponse
     - [ ] normalizeQueryRecordResponse
     - [ ] normalizeResponse
     - [ ] normalizeUpdateRecordResponse
     - [x] normalizeFindAllResponse
     - [x] normalizeQueryResponse
+    - [x] serialize (not a fan of this, but don't know a better way)
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
-  - [ ] Es-Query-Builder
+  - [ ] Es-Query-Builder -- (Move to EsTools utility)
     - [ ] Add filter function 
     - [ ] Add mustNot function 
     - [ ] Add should function 
@@ -54,6 +55,7 @@ getting the ember repo into a stable (credential-free) state.
   - [ ] Add functionality to the Serializer
     - [ ] normalizeArrayResponse
     - [ ] normalizeFindManyResponse
+    - [ ] cleanup serialize
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
