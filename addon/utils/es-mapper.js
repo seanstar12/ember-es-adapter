@@ -2,12 +2,12 @@ import config from 'ember-get-config';
 import Ember from 'ember';
 
 /**
-* Queries ElasticSearch to get mappings.
+* ElasticSearch Tools for interfacing
 *
-* @class EsMapper
+* @class EsTools
 * @constructor
 */
-class EsMapper {
+class EsTools {
 
   constructor () {
     this.host = config.EsAdapter.host;
@@ -77,6 +77,28 @@ class EsMapper {
   getTrue() {
     return true;
   }
-}
 
-export default EsMapper;
+  getLastId(index,field) {
+    let host = this.host,
+        namespace = this.namespace,
+        queryString = "_search?query=match_all&size=1&fields=" + field + "&sort=" + field + ":desc",
+        url = [host, namespace, index, queryString].join('/');
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      fetch(url)
+        .then((resp) => {
+          resp.json()
+            .then((json) => {
+              if (json && json.hits.hits.length) {
+                resolve(parseInt(json.hits.hits[0]._id));
+              }
+              else {
+                reject('[EsMapper][getLastId]: No Response.');
+              }
+            });
+        });
+    });
+  }
+
+}
+export default EsTools;
