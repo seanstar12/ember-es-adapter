@@ -9,6 +9,10 @@ const {environment} = config;
 export default JSONAPIAdapter.extend({
   config: environment,
 
+  urlForCreateRecord(modelName, snapshot) {
+    return [this.buildURL(modelName), snapshot.id].join('/');
+  },
+
   query(store, type, params) {
     const url = [this.buildURL(type.modelName), '_search'].join('/');
     let query = Ember.get(params, 'esQuery') || null,
