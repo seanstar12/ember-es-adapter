@@ -7,8 +7,9 @@
 An adapter written for Elasticsearch and EmberJS.
 
 #### Demo
-[S3 Blog](http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/), this shows just the basics. I'm still working on
-getting the ember repo into a stable (credential-free) state.
+[S3 Blog](http://ember-s3-blog-prod.s3-website-us-east-1.amazonaws.com/), this shows just the basics. The repo
+can be found here: [ember-s3-blog](https://github.com/seanstar12/ember-s3-blog). This is very much a work in 
+progress, but allows me to have a use-case to build the adapter.
 
 #### On the hotplate for [0.1.0]
   - [ ] Add functionality to the Adapter
