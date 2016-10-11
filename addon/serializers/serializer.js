@@ -14,7 +14,7 @@ export default DS.JSONAPISerializer.extend({
   // normalize[X]Response
   //primaryKey: '_id',
 
-  serialize(snapshot, options) {
+  serialize(/*snapshot, options*/) {
     //console.log('[es-adapter][serializer]:[serialize]');
     let json = this._super(...arguments),
         item = json.data,
