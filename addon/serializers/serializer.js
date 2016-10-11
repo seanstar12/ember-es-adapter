@@ -14,11 +14,19 @@ export default DS.JSONAPISerializer.extend({
   // normalize[X]Response
   //primaryKey: '_id',
 
-  //serialize(snapshot, options) {
-  //  console.log('[es-adapter][serializer]:[serialize]');
-  //  var json = this._super(...arguments);
-  //  return json;
-  //},
+  serialize(snapshot, options) {
+    //console.log('[es-adapter][serializer]:[serialize]');
+    let json = this._super(...arguments),
+        item = json.data,
+        data = {},
+        attrs = Object.getOwnPropertyNames(item.attributes);
+
+    attrs.forEach((attr) => {
+      data[attr] = item.attributes[attr];
+    });
+
+    return data;
+  },
 
   /**
    * Converts ElasticSearch server responses into the format expected by the JSONAPISerializer.
@@ -32,14 +40,14 @@ export default DS.JSONAPISerializer.extend({
    * @return {Object} JSON-API Document
    */
   normalizeResponse: function(store, primaryModelClass, payload, id, requestType) {
-    console.log('[es-adapter][serializer]:[normalizeResponse]');
+    //console.log('[es-adapter][serializer]:[normalizeResponse]');
     //console.log(payload);
 
     return this._super(store, primaryModelClass, payload, id, requestType);
   },
 
   normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
-    console.log('[es-adapter][serializer]:[normalizeFindAllResponse]');
+    //console.log('[es-adapter][serializer]:[normalizeFindAllResponse]');
     let hits = payload.hits;
 
     payload = {
@@ -62,7 +70,7 @@ export default DS.JSONAPISerializer.extend({
   },
 
   normalizeQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
-    console.log('[es-adapter][serializer]:[normalizeQueryResponse]');
+    //console.log('[es-adapter][serializer]:[normalizeQueryResponse]');
     let hits = payload.hits;
 
     payload = {
@@ -85,7 +93,7 @@ export default DS.JSONAPISerializer.extend({
   },
 
   normalizeSingleResponse: function(store, primaryModelClass, payload, id, requestType) {
-    console.log('[es-adapter][serializer]:[normalizeSingleResponse]');
+    //console.log('[es-adapter][serializer]:[normalizeSingleResponse]');
 
     payload = {
       data: {
@@ -102,4 +110,5 @@ export default DS.JSONAPISerializer.extend({
 
     return this._super(store, primaryModelClass, payload, id, requestType);
   }
+
 });
