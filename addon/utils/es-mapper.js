@@ -87,13 +87,17 @@ class EsTools {
     return new Ember.RSVP.Promise(function(resolve, reject) {
       fetch(url)
         .then((resp) => {
+          if (resp.status !== 200) {
+            return reject('[EsMapper][getLastId]: Status -- ' + JSON.stringify(resp.status));
+          }
+
           resp.json()
             .then((json) => {
-              if (json && json.hits.hits.length) {
-                resolve(parseInt(json.hits.hits[0]._id));
+              if (json && json.hits.total) {
+                return resolve(parseInt(json.hits.hits[0]._id));
               }
               else {
-                reject('[EsMapper][getLastId]: No Response.');
+                return resolve(0);
               }
             });
         });
