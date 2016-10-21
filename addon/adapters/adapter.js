@@ -65,6 +65,25 @@ export default JSONAPIAdapter.extend({
       }
     }
     return obj;
+  },
+
+  updateRecord(nodelName, type, snapshot) {
+    let data = {},
+        serializer = this.store.serializerFor(type.modelName);
+
+    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+
+    let id = snapshot.id,
+        url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+
+    return fetch(url, {
+      method: "post",
+      body: JSON.stringify(data)
+    })
+    .then(function(resp) {
+      return resp.json();
+    });
+
   }
 
 });
