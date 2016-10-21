@@ -193,7 +193,7 @@ class QueryDSL {
     params[type] = {};
     params[type][kind] = {};
 
-    return this._query[type] = options;
+    return this._query[type] = params;
   }
 
   /**
