@@ -1,4 +1,5 @@
-import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import RESTAdapter from 'ember-data/adapters/rest';
+import DS from 'ember-data';
 import EsQuery from 'ember-es-adapter/utils/es-query-builder';
 import extend from 'ember-es-adapter/utils/extend';
 import Ember from 'ember';
@@ -6,7 +7,7 @@ import config from 'ember-get-config';
 
 const {environment} = config;
 
-export default JSONAPIAdapter.extend({
+export default RESTAdapter.extend({
   config: environment,
 
   urlForCreateRecord(modelName, snapshot) {
@@ -67,6 +68,27 @@ export default JSONAPIAdapter.extend({
     return obj;
   },
 
+  createRecord(nodelName, type, snapshot) {
+    let data = {},
+        serializer = this.store.serializerFor(type.modelName);
+
+    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+
+    let id = snapshot.id,
+        url = this.buildURL(type.modelName, id, snapshot, 'createRecord');
+    
+    url = [url, '_create'].join('/');
+
+    return fetch(url, {
+      method: "post",
+      body: JSON.stringify(data)
+    })
+    .then(function(resp) {
+      return resp.json();
+    });
+
+  },
+
   updateRecord(nodelName, type, snapshot) {
     let data = {},
         serializer = this.store.serializerFor(type.modelName);
@@ -78,12 +100,39 @@ export default JSONAPIAdapter.extend({
 
     return fetch(url, {
       method: "post",
+      //mode: "no-cors",
       body: JSON.stringify(data)
     })
     .then(function(resp) {
-      return resp.json();
+      console.log(resp);
+      return resp.json()
+        .then((_resp) => {
+          console.log('updateRecord');
+          console.log(_resp);
+          if (_resp.error) {
+            console.log('updateRecord Error');
+            console.log(_resp);
+            return Ember.RSVP.reject(new DS.InvalidError([
+              {
+                message: _resp.error.reason,
+                cause: _resp.error.caused_by.reason,
+                type: _resp.error.type,
+                error: _resp.error,
+                status: _resp.status
+              }
+            ]));
+          }
+          return _resp;
+        });
     });
 
+  },
+
+  handleResponse: function(status, headers, payload){
+    console.log('handle response');
+    console.log({status, headers, payload}); 
+
+    return this._super(...arguments);
   }
 
 });

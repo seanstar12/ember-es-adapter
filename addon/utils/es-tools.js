@@ -115,10 +115,7 @@ class QueryDSL {
 
   constructor (opts) {
     this.opts = JSON.parse(JSON.stringify(opts)) || null;
-    this.sort = [];
-    this.options = this._options(opts);
-    this._defaultSortSet = false;
-
+    this._query = {};
   }
 
   /**
@@ -150,34 +147,34 @@ class QueryDSL {
 
   query() {
     this._query = { query: {} };
+    this._queue = [];
     return this;
   }
 
   match(options) {
-    this._add('match', options);
-    return this;
+    return this._add('match', options);
   }
 
   match_phrase(options) {
-    this._add('match_phrase', options);
-    return this;
+    return this._add('match_phrase', options);
   }
 
   multi_match(options) {
-    this._add('multi_match', options);
-    return this;
+    return this._add('multi_match', options);
   }
 
   bool(kind) {
-    this._addParent('bool', kind);
-    return this;
+    let params = {};
+    params[kind] = [];
+
+    return this._add('bool', params);
   }
 
   getThis() {
-    return this._query;
+    return this;
   }
 
-  _add(type, options) {
+  _add(type, options, fn) {
     if (options == null) {
       options = {};
     }
@@ -185,7 +182,8 @@ class QueryDSL {
     let params = {};
     params[type] = options;
 
-    return this._query.query[type] = options;
+    this._query.query[type] = options;
+    return this;
   }
 
   _addParent(type, kind) {
