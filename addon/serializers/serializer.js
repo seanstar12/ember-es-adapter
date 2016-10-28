@@ -109,10 +109,10 @@ export default DS.JSONAPISerializer.extend({
     };
 
     return this._super(store, primaryModelClass, payload, id, requestType);
-  },
-
-  normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
-    //console.log('[es-adapter][serializer]:[normalizeSingleCreateRecordResponse]');
-  	return this.normalizeSaveResponse(...arguments);
   }
+
+  //normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  //  //console.log('[es-adapter][serializer]:[normalizeSingleCreateRecordResponse]');
+  //	return this.normalizeSaveResponse(...arguments);
+  //}
 });
