@@ -1,6 +1,5 @@
-import config from 'ember-get-config';
 import Ember from 'ember';
-import extend from 'ember-es-adapter/utils/extend';
+import config from 'ember-get-config';
 
 const defaultQuerySize = 20;
 
@@ -14,8 +13,8 @@ const defaultQuerySize = 20;
 class EsTools {
 
   constructor () {
-    this.host = config.EsAdapter.host;
-    this.namespace = config.EsAdapter.namespace;
+    this.host = config.APP.EsAdapter.host;
+    this.namespace = config.APP.EsAdapter.namespace;
   }
 
   /**
@@ -117,33 +116,6 @@ class QueryDSL {
   constructor (opts) {
     this.opts = JSON.parse(JSON.stringify(opts)) || null;
     this._query = {};
-  }
-
-  /**
-  * Private: 
-  * Sets the options variable for the class.
-  *
-  * @method _options
-  * @private
-  * @param {Object} options Overrides for the class.
-  * @return {Object} default = { 'sortType': 'desc', 'sort': '_score' };
-  */
-  _options(options) {
-    options = options ? options : {};
-    options.esParams = options.esParams ? options.esParams: {};
-
-    let defaults = {
-      'from': 0,
-      'size': defaultQuerySize
-    };
-
-    options = extend(defaults, options, options.esParams);
-
-    if (options.page) {
-      options.from = this._getOffsetFromPage(options.page, options.size);
-    }
-
-    return options;
   }
 
   query(options) {

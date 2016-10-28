@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>addon/serializers/serializer.js - ember-es-adapter</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="ember-es-adapter" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.8.19929d74</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/esQueryBuilder.html">esQueryBuilder</a></li>
+                                <li><a href="../classes/EsSerializer.html">EsSerializer</a></li>
+                                <li><a href="../classes/EsTools.html">EsTools</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: addon/serializers/serializer.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+import DS from &#x27;ember-data&#x27;;
+
+/**
+ * Handle ElasticSearch (de)serialization.
+ *
+ * This serializer adjusts payload data so that it is consumable by
+ * ElasticSearch.
+ *
+ * @class EsSerializer
+ * @extends DS.JSONAPISerializer
+ */
+export default DS.JSONAPISerializer.extend({
+  // Don&#x27;t need to convert primaryKey because we&#x27;re doing that with
+  // normalize[X]Response
+  //primaryKey: &#x27;_id&#x27;,
+
+  serialize(/*snapshot, options*/) {
+    //console.log(&#x27;[es-adapter][serializer]:[serialize]&#x27;);
+    let json = this._super(...arguments),
+        item = json.data,
+        data = {},
+        attrs = Object.getOwnPropertyNames(item.attributes);
+
+    attrs.forEach((attr) =&gt; {
+      data[attr] = item.attributes[attr];
+    });
+
+    return data;
+  },
+
+  extractErrors(store, typeClass, payload, id) {
+    console.log(&#x27;extract errors&#x27;);
+    let bleh = &quot;this is it&quot;;
+    console.log({typeClass, bleh, payload, id});
+
+    return payload;
+  },
+
+
+  /**
+   * Converts ElasticSearch server responses into the format expected by the JSONAPISerializer.
+   *
+   * @method normalizeResponse
+   * @param {DS.Store} store
+   * @param {DS.Model} primaryModelClass
+   * @param {Object} payload
+   * @param {String|Number} id
+   * @param {String} requestType
+   * @return {Object} JSON-API Document
+   */
+  normalizeResponse: function(store, primaryModelClass, payload, id, requestType) {
+    //console.log(&#x27;[es-adapter][serializer]:[normalizeResponse]&#x27;);
+    //console.log(payload);
+
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
+    //console.log(&#x27;[es-adapter][serializer]:[normalizeFindAllResponse]&#x27;);
+    let hits = payload.hits;
+
+    payload = {
+      data: hits.hits.map(function(hit) {
+        return {
+          id: hit._id,
+          type: hit._type,
+          attributes: hit._source
+        };
+      }),
+      meta: {
+        shards: payload._shards,
+        timed_out: payload.timed_out,
+        took: payload.took,
+        total: hits.total
+      }
+    };
+	  
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
+    //console.log(&#x27;[es-adapter][serializer]:[normalizeQueryResponse]&#x27;);
+    let hits = payload.hits;
+
+    payload = {
+      data: hits.hits.map(function(hit) {
+        return {
+          id: hit._id,
+          type: hit._type,
+          attributes: hit._source
+        };
+      }),
+      meta: {
+        shards: payload._shards,
+        timed_out: payload.timed_out,
+        took: payload.took,
+        total: hits.total
+      }
+    };
+
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeSingleResponse: function(store, primaryModelClass, payload, id, requestType) {
+    //console.log(&#x27;[es-adapter][serializer]:[normalizeSingleResponse]&#x27;);
+
+    payload = {
+      data: {
+        id: payload._id,
+        type: payload._type,
+        attributes: payload._source
+      },
+      meta: {
+        index: payload._index,
+        found: payload.found,
+        version: payload._version
+      }
+    };
+
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
+    console.log(&#x27;[es-adapter][serializer]:[normalizeSingleCreateRecordResponse]&#x27;);
+    console.log({primaryModelClass, payload, id, requestType});
+  	return this.normalizeSaveResponse(...arguments);
+  },
+
+});
+
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -13,6 +13,7 @@ test('Constructor constructs with properties', function(assert) {
   let obj = { 'from' : 10 };
   let es = new EsQuery(obj);
   
+  console.log(es);
   assert.equal(es.options.page, obj.page, "From number is the same.");
 });
 

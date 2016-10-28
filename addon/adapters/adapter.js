@@ -1,13 +1,9 @@
 import RESTAdapter from 'ember-data/adapters/rest';
 import DS from 'ember-data';
 import {QueryDSL} from 'ember-es-adapter/utils/es-tools';
-import config from 'ember-get-config';
 import Ember from 'ember';
 
-const {environment} = config;
-
 export default RESTAdapter.extend({
-  config: environment,
 
   urlForCreateRecord(modelName, snapshot) {
     return [this.buildURL(modelName), snapshot.id].join('/');

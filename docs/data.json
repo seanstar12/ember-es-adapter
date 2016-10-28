@@ -1,0 +1,521 @@
+{
+    "project": {
+        "name": "ember-es-adapter",
+        "description": "An elasticsearch adapter for EmberJS.",
+        "version": "0.0.8.19929d74"
+    },
+    "files": {
+        "addon/serializers/serializer.js": {
+            "name": "addon/serializers/serializer.js",
+            "modules": {},
+            "classes": {
+                "EsSerializer": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "addon/utils/es-query-builder.js": {
+            "name": "addon/utils/es-query-builder.js",
+            "modules": {},
+            "classes": {
+                "esQueryBuilder": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "addon/utils/es-tools.js": {
+            "name": "addon/utils/es-tools.js",
+            "modules": {},
+            "classes": {
+                "EsTools": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "EsSerializer": {
+            "name": "EsSerializer",
+            "shortname": "EsSerializer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "addon/serializers/serializer.js",
+            "line": 3,
+            "description": "Handle ElasticSearch (de)serialization.\n\nThis serializer adjusts payload data so that it is consumable by\nElasticSearch.",
+            "extends": "DS.JSONAPISerializer"
+        },
+        "esQueryBuilder": {
+            "name": "esQueryBuilder",
+            "shortname": "esQueryBuilder",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "addon/utils/es-query-builder.js",
+            "line": 4,
+            "description": "Builds queries for ElasticSearch.\nUsage: \n  ```javascript\n  let es, myQuery;\n  es = new esQuery();\n  es.addBoolMatchField('title', 'ECO');\n  myQuery = es.getQuery();\n  ```",
+            "is_constructor": 1
+        },
+        "EsTools": {
+            "name": "EsTools",
+            "shortname": "EsTools",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "addon/utils/es-tools.js",
+            "line": 108,
+            "description": "ElasticSearch Tools for interfacing",
+            "is_constructor": 1
+        }
+    },
+    "elements": {},
+    "classitems": [
+        {
+            "file": "addon/serializers/serializer.js",
+            "line": 40,
+            "description": "Converts ElasticSearch server responses into the format expected by the JSONAPISerializer.",
+            "itemtype": "method",
+            "name": "normalizeResponse",
+            "params": [
+                {
+                    "name": "store",
+                    "description": "",
+                    "type": "DS.Store"
+                },
+                {
+                    "name": "primaryModelClass",
+                    "description": "",
+                    "type": "DS.Model"
+                },
+                {
+                    "name": "payload",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "id",
+                    "description": "",
+                    "type": "String|Number"
+                },
+                {
+                    "name": "requestType",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "JSON-API Document",
+                "type": "Object"
+            },
+            "class": "EsSerializer"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 27,
+            "description": "Private: \nSets the options variable for the class.",
+            "itemtype": "method",
+            "name": "_options",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Overrides for the class.",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "default = { 'sortType': 'desc', 'sort': '_score' };",
+                "type": "Object"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 54,
+            "description": "Private:  \nConvert page to offset for use with pagination",
+            "itemtype": "method",
+            "name": "_getOffsetFromPage",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "page",
+                    "description": "Page that request is on.",
+                    "type": "Integer"
+                },
+                {
+                    "name": "size",
+                    "description": "Size of pages (optional).",
+                    "type": "Integer"
+                }
+            ],
+            "return": {
+                "description": "Returns offset.",
+                "type": "Integer"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 70,
+            "description": "Public: \nReturns options from the class.",
+            "itemtype": "method",
+            "name": "getOptions",
+            "return": {
+                "description": "{ 'sortType': 'desc', 'sort': '_score' }",
+                "type": "Object"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 81,
+            "description": "Public: \nGets the query in it's current state.",
+            "itemtype": "method",
+            "name": "getQuery",
+            "return": {
+                "description": "Object state of query.",
+                "type": "Object"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 92,
+            "description": "Private: \nGenerates the template for a \"Bool\" query.\n  ```json\n  {\n    \"query\": {\n      \"bool\": {\n        \"must\": [],  \n        \"filter\": [],  \n        \"must_not\": [],  \n        \"should\": [],  \n      }\n    }\n  }\n  ```",
+            "itemtype": "method",
+            "name": "_templateBoolQuery",
+            "access": "private",
+            "tagname": "",
+            "return": {
+                "description": "Returns the default structure for the query.",
+                "type": "Object"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 125,
+            "description": "Adds a sort param. Takes a string or object. These are stackable\nso multiple sorts can be applied.\n\n  ```json\n  Example use:\n  let es, myQuery;\n  es = new esQuery();\n  es.addSort('title');\n  es.addSort({'date' : { 'order': 'asc'}});\n  es.getQuery(); \n  ```\n\n  ```json\n  Example Sorts\n  `simple sort`\n  \"user\"\n\n  `less simple sort`\n  { \"name\": \"asc\" }\n\n  `complexish simple sort`\n  { \"post_date\": { \"order\": \"asc\"} }",
+            "itemtype": "method",
+            "name": "addSort",
+            "params": [
+                {
+                    "name": "sort",
+                    "description": "Sort object/string to be added.",
+                    "type": "Object"
+                }
+            ],
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 156,
+            "description": "Adds a sort param.",
+            "itemtype": "method",
+            "name": "_addDefaultSort",
+            "access": "private",
+            "tagname": "",
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 181,
+            "description": "Public: \nAdds a query to Bool. Allows for complex queries.\n\n  ```json\n  Example objects:\n\n  `complex match`\n  {\n    \"match\": {\n      \"message\": {\n        \"query\": \"to be or not to be\",\n        \"operator\": \"and\",\n        \"zero_terms_query\": \"all\"\n      }\n    }\n  }\n\n  `simple match`\n  {\n    \"match\": {\n      \"message\": \"this is a test\"\n    }\n  }\n\n  `other queries`\n  {\n    \"term\": {\n      \"tag\": \"tech\"\n    }\n  }\n  ```",
+            "itemtype": "method",
+            "name": "addBool",
+            "params": [
+                {
+                    "name": "query",
+                    "description": "Query parameters",
+                    "type": "Object"
+                },
+                {
+                    "name": "type",
+                    "description": "Type of Bool query should be applied to. \n                [must,filter,must_not,should]. Defaults to 'must'.",
+                    "type": "String"
+                }
+            ],
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 225,
+            "description": "Private: \nAdds a query to Bool. Secrely.",
+            "itemtype": "method",
+            "name": "_addBool",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "query",
+                    "description": "Query parameters",
+                    "type": "Object"
+                },
+                {
+                    "name": "type",
+                    "description": "Type of Bool query should be applied to. \n                [must,filter,must_not,should]. Defaults to 'must'.",
+                    "type": "String"
+                }
+            ],
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 243,
+            "description": "Public: \nAdds a query to Bool with the type 'match'.\n  ```json\n  {\n    \"match\": {\n      \"{field}\": \"{value}\"\n    }\n  }\n  ```",
+            "itemtype": "method",
+            "name": "addBoolMatchField",
+            "params": [
+                {
+                    "name": "field",
+                    "description": "Field name to run query against.",
+                    "type": "String"
+                },
+                {
+                    "name": "value",
+                    "description": "Value of field.",
+                    "type": "String"
+                }
+            ],
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-query-builder.js",
+            "line": 268,
+            "description": "Public: \nBuilds the return query.",
+            "itemtype": "method",
+            "name": "buildQuery",
+            "return": {
+                "description": "Returns full query object.",
+                "type": "Object"
+            },
+            "class": "esQueryBuilder"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 20,
+            "description": "Gets the mapping from ElasticSearch in form of array.",
+            "itemtype": "method",
+            "name": "getMapping",
+            "access": "private",
+            "tagname": "",
+            "return": {
+                "description": "Object containing arrays of mappings. \ne.g. {'post':[{mapping:'body', type:'string'}]}",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 242,
+            "description": "Public:  \nAdds size to query",
+            "itemtype": "method",
+            "name": "size",
+            "params": [
+                {
+                    "name": "size",
+                    "description": "Size of query",
+                    "type": "Integer"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 254,
+            "description": "Public:  \nAdds from to query",
+            "itemtype": "method",
+            "name": "from",
+            "params": [
+                {
+                    "name": "from",
+                    "description": "Start of offset for query",
+                    "type": "Integer"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 266,
+            "description": "Public:  \nGets full query ready to send to elasticsearch",
+            "itemtype": "method",
+            "name": "getQuery",
+            "return": {
+                "description": "Returns query object.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 294,
+            "description": "Private:  \nGets context for debugging",
+            "itemtype": "method",
+            "name": "getThis",
+            "access": "private",
+            "tagname": "",
+            "return": {
+                "description": "Returns this",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 306,
+            "description": "Private:  \nAdds item to query",
+            "itemtype": "method",
+            "name": "_addCompound",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "Type of item being added to query",
+                    "type": "String"
+                },
+                {
+                    "name": "kind",
+                    "description": "Kind of item being added to query.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 335,
+            "description": "Private:  \nAdds Object to _parent path. Used only for highlight right now",
+            "itemtype": "method",
+            "name": "_addObj",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "Type of item being added to query",
+                    "type": "String"
+                },
+                {
+                    "name": "options",
+                    "description": "Overrideable contents for highlight",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 356,
+            "description": "Private:  \nAdds compound query type to query",
+            "itemtype": "method",
+            "name": "_addCompound",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "Type of item being added to query",
+                    "type": "String"
+                },
+                {
+                    "name": "kind",
+                    "description": "Kind of item being added to query.",
+                    "type": "String"
+                },
+                {
+                    "name": "path",
+                    "description": "Custom path if desired.",
+                    "type": "Array"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 384,
+            "description": "Private:  \nAdds any passed variable to the root of the returned query",
+            "itemtype": "method",
+            "name": "_addToQuery",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "Type of item being added to root of query",
+                    "type": "String"
+                },
+                {
+                    "name": "options",
+                    "description": "Object being added to query.",
+                    "type": "Object||String||Array"
+                }
+            ],
+            "return": {
+                "description": "Returns this for chaining.",
+                "type": "Object"
+            },
+            "class": "EsTools"
+        },
+        {
+            "file": "addon/utils/es-tools.js",
+            "line": 405,
+            "description": "Private:  \nConvert page to offset for use with pagination",
+            "todo": [
+                ": could cause race condition if size ins't\nset first"
+            ],
+            "itemtype": "method",
+            "name": "page",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "page",
+                    "description": "Page that request is on.",
+                    "type": "Integer"
+                },
+                {
+                    "name": "size",
+                    "description": "Size of pages (optional).",
+                    "type": "Integer"
+                }
+            ],
+            "return": {
+                "description": "Returns offset.",
+                "type": "Integer"
+            },
+            "class": "EsTools"
+        }
+    ],
+    "warnings": []
+}
