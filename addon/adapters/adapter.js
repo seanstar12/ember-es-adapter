@@ -1,12 +1,10 @@
 import RESTAdapter from 'ember-data/adapters/rest';
 import DS from 'ember-data';
-import EsQuery from 'ember-es-adapter/utils/es-query-builder';
 import {QueryDSL} from 'ember-es-adapter/utils/es-tools';
 import extend from 'ember-es-adapter/utils/extend';
 import config from 'ember-get-config';
 import Ember from 'ember';
 
-import { isEmpty, RSVP } from 'ember';
 const {environment} = config;
 
 export default RESTAdapter.extend({
@@ -43,7 +41,7 @@ export default RESTAdapter.extend({
   findAll(store, type) {
     const url = [this.buildURL(type.modelName), '_search'].join('/');
 
-    let es = new EsQuery({ 'size': 10000 });
+    let es = new QueryDSL({ 'size': 10000 });
 
     return fetch(url, {
       method: "post",
@@ -52,17 +50,6 @@ export default RESTAdapter.extend({
     .then(function(resp) {
       return resp.json();
     });
-  },
-
-  filter(obj) {
-    let allowed = ['size', 'from', 'query', 'page'];
-    
-    for (let i in obj) {
-      if (allowed.indexOf(i) < 0) {
-        delete obj[i];
-      }
-    }
-    return obj;
   },
 
   createRecord(nodelName, type, snapshot) {
@@ -97,7 +84,6 @@ export default RESTAdapter.extend({
 
     return fetch(url, {
       method: "post",
-      //mode: "no-cors",
       body: JSON.stringify(data)
     })
     .then(function(resp) {
@@ -109,7 +95,7 @@ export default RESTAdapter.extend({
           if (_resp.error) {
             console.log('updateRecord Error');
             console.log(_resp);
-            return RSVP.reject(new DS.InvalidError([
+            return Ember.RSVP.reject(new DS.InvalidError([
               {
                 message: _resp.error.reason,
                 cause: _resp.error.caused_by.reason,

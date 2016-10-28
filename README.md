@@ -15,6 +15,7 @@ progress, but allows me to have a use-case to build the adapter.
   - [ ] Add functionality to the Adapter
     - [ ] findMany
     - [ ] queryRecord
+    - [-] updateRecord (partially implemented, not fully tested)
     - [x] createRecord
     - [x] deleteRecord (Already works with default)
     - [x] query
@@ -23,30 +24,54 @@ progress, but allows me to have a use-case to build the adapter.
     - [x] normalizeCreateRecordResponse (Already works with default)
     - [ ] normalizeDeleteRecordResponse
     - [ ] normalizeQueryRecordResponse
-    - [ ] normalizeResponse
+    - [x] normalizeResponse
     - [ ] normalizeUpdateRecordResponse
     - [x] normalizeFindAllResponse
+    - [x] normalizeSingleResponse
     - [x] normalizeQueryResponse
     - [x] serialize (not a fan of this, but don't know a better way)
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
-  - [ ] Es-Query-Builder -- (Move to EsTools utility)
-    - [ ] Add filter function 
-    - [ ] Add mustNot function 
-    - [ ] Add should function 
-    - [x] Add sorts
-    - [x] Add use of default sort
-    - [x] Allow params from route and filtered params
-    - [x] Add prototype for detecting page (pagination API)
-    - [x] Add must function 
-    - [x] Add bool query template
-    - [x] Add documentation (yui comments)
-    - [x] Make it work
+  - [ ] ES-Tools
+    - [ ] QueryDSL
+      - [ ] Add MoreLikeThis
+      - [ ] Add Aggregations
+      - [x] Add Query
+        - [x] Add Default Param Override
+        - [x] match()
+        - [x] match_phrase()
+        - [x] multi_match() 
+        - [x] common_terms() 
+        - [x] query_string() 
+        - [x] simple_query_string()
+        - [x] term()
+        - [x] terms()
+        - [x] range()
+        - [x] exists()
+        - [x] prefix()
+        - [x] wildcard()
+        - [x] regexp()
+        - [x] fuzzy()
+        - [x] type()
+        - [x] ids()
+      - [x] Add Filter
+        - [x] Add Default Param Override
+      - [x] Add Highlighting
+        - [x] Add Default Param Override
+        - [x] Add fields
+      - [x] Compound Query
+        - [x] Add Bool (must, filter, should, must_not)
+      - [x] Add sorts
+      - [x] Add size
+      - [x] Add from
+      - [x] Allow params from route
+      - [x] Add prototype for detecting page (pagination API)
+      - [ ] Add full documentation (yui comments)
+      - [x] Make it work
   - [ ] Make all the tests
     - [ ] The adapter
     - [ ] The serializer
-    - [x] The AWS signer
     - [x] The es-query-builder
 
 #### The gameplan [0.1.5]
@@ -57,14 +82,12 @@ progress, but allows me to have a use-case to build the adapter.
     - [ ] normalizeArrayResponse
     - [ ] normalizeFindManyResponse
     - [ ] cleanup serialize
+  - [ ] Instant Search Component
   - [ ] Blueprints
     - [ ] Adapter
     - [ ] Serializer
-  - [ ] Es-Query-Builder
-    - [ ] Add Aggregation functionality
-    - [ ] Add MoreLikeThis query
+  - [ ] QueryDSL
     - [ ] Add ES versioning
-  - [ ] Finish up the AWS request signer
   - [ ] Make all the tests
     - [ ] The extend utility
   - [ ] Definitely more...
@@ -96,12 +119,13 @@ progress, but allows me to have a use-case to build the adapter.
 
   ```javascript
   `your_app/routes/index.js`
-  import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+  import { QueryDSL } from 'ember-es-adapter/utils/es-tools';
 
   //let the adapter build the query
   export default Ember.Route.extend({
     model(params) {
-      params['esParams'] = {sort: 'date', 'sortType': 'desc'};
+      //params['size'] = 2,
+      //params['page'] = 2,
       return this.store.query('post', params);
     }
   });
@@ -110,69 +134,109 @@ progress, but allows me to have a use-case to build the adapter.
   export default Ember.Route.extend({
     model(params) {
       //simulated params
+      //if building yourself, these won't be utilized
       params['size'] = 10;
       params['query'] = 'yolo';
 
-      //adding esParams into the default `params`, and initiating new instance
-      params['esParams'] = {sort: 'date', 'sortType': 'desc'};
-      let es = new EsQuery(params);
 
-      if (params.query) {
-        es.addBool({"query_string": {"query":params.query}});
-      }
+     /*  
+       QueryDSL is chainable.
+       .query({override}) will add a query, but if .bool() is used,
+       it will replace the query with a bool type.
+       the chaining works as long as a compound query is issued before it.
+       (bool, highlight, filter, etc...)
+
+     */
+
+      let dsl = new QueryDSL(params);
+      dsl.query({match_all:{}})
+        .sort({'date':'desc'})
+        .sort('title')
+
+      or 
+
+      dsl.query()
+        .bool('must')
+        .match('title': 'jerry'})
+        .sort({'date':'desc'}) // sorts are agnostic to chains
+        .sort('title')         // they are applied to the top level
+
 
       //building the query, sending to adapter
-      params['esQuery'] = es.buildQuery();
+      params['esQuery'] = dsl.getQuery();
       return this.store.query('post', params);
     }
   });
   ```
 
-#### ElasticSearch Query Builder
+#### ElasticSearch QueryDSL Builder
   * Useage example
     ```javascript
-    import esQuery from "ember-es-adapter/utils/es-query-builder";
-    let es = new esQuery({size: 2, from: 200});
-    //  es = new esQuery(); // or no options
-    es.addBool({'match': {"title": "Third"}}); //complex queries
-    es.addBoolMatchField('title', 'Third'); //same as above, just simple
-    es.addSort({'title':'asc'}); //add sort: can be complex
-    es.addSort("title"); //add sort: or simple
-    let query = es.buildQuery();
+    import QueryDSL from "ember-es-adapter/utils/es-tools";
+    let dsl = new QueryDSL({size: 2, from: 200});
+    //  dsl = new QueryDSL(); // or no options
+
+    dsl.query({'match': {"title": "Third"}}); //complex queries with no parsing
+    dsl.query().match({'title':'Third'});   //same as above, just with chaining
+
+    dsl.sort({'title':'asc'}); //add sort: can be complex
+    dsl.title("title");        //add sort: or simple
+
+    let query = es.getQuery();
     ```
 
   * Using the Query Builder
     ```javascript
-    //Constructor available params. All Optional
-    {
-      sort: "title",        // string  
-      sortType: "asc:desc", // string  will not be used if sort is not defined
-      from: 0,              // int  for offset
-      size: 10,             // int  for length to return default: 20
-    } 
+    import QueryDSL from 'ember-es-adapter/utils/es-tools';
 
-    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
-
-    let es = new esQuery({size: 14, from: 200});
+    let es = new QueryDSL().query({match_all:{}});
     ```
   * Building a Query
     ```javascript
     //Params
-    .addBool(query, type) //type optional
+    .query({query})           // obj optional override the way you want it sent to ES.
     {
       query: {},            // object  
-      type: optional,       // string defaults to 'must' if not supplied
-                            // sets the type of query [must,filter,must_not,should]
     } 
 
-    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+    import QueryDSL from 'ember-es-adapter/utils/es-tools';
 
-    let es = new esQuery();
+    let dsl = new QueryDSL();
 
     //equivalent queries, latter allows for more complex queries
-    es.addBoolMatchField('title', 'Third');
-    es.addBool({'match': {"title": "Third"}});
+    dsl.query()
+      .match({'title':'Third'});
+
+    dsl.query({match:{'title':'Third'}});
+
+    
+    //example of using multiple bools within the same query.
+    let dsl = new QueryDSL();
+    dsl.query()
+      .bool('must')
+      .term({'user': 'steve'})
+      .bool('filter')
+      .range({'age': {"gte": 14, "lte": 35}})
     ```
+
+  * Add a filter
+    ```javascript
+    //Params
+    .filter({obj})           // obj optional override the way you want it sent to ES.
+    {
+      obj: {},              // object  
+    } 
+
+    import QueryDSL from 'ember-es-adapter/utils/es-tools';
+
+    let dsl = new QueryDSL();
+
+    dsl.filter()
+      .bool('must')
+      .match({'title':'Third'});
+
+    ```
+
   * Adding a Sort
     ```javascript
     //Adds sort option. This can be ran multiple times if more specific sorts
@@ -181,12 +245,12 @@ progress, but allows me to have a use-case to build the adapter.
       sort: "title" || {},    // string || object  
     } 
 
-    import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+    import QueryDSL from 'ember-es-adapter/utils/es-tools';
 
-    let es = new esQuery();
+    let dsl = new esQuery();
 
-    es.addSort('title');
-    es.addSort({ "name": "asc" });
-    es.addSort({ "post_date": { "order": "asc"} });
+    dsl.sort('title');
+    dsl.sort({ "name": "asc" });
+    dsl.sort({ "post_date": { "order": "asc"} });
     ```
 
