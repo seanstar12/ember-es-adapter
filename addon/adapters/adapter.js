@@ -1,10 +1,12 @@
 import RESTAdapter from 'ember-data/adapters/rest';
 import DS from 'ember-data';
 import EsQuery from 'ember-es-adapter/utils/es-query-builder';
+import {QueryDSL} from 'ember-es-adapter/utils/es-tools';
 import extend from 'ember-es-adapter/utils/extend';
-import Ember from 'ember';
 import config from 'ember-get-config';
+import Ember from 'ember';
 
+import { isEmpty, RSVP } from 'ember';
 const {environment} = config;
 
 export default RESTAdapter.extend({
@@ -16,22 +18,17 @@ export default RESTAdapter.extend({
 
   query(store, type, params) {
     const url = [this.buildURL(type.modelName), '_search'].join('/');
-    let query = Ember.get(params, 'esQuery') || null,
-        esParams = Ember.get(params, 'esParams') || null,
-        _params = this.filter(params); // Filter out params we don't know how to handle
+
+    let query = Ember.get(params, 'esQuery') || null;
 
     // No EsQuery object was supplied, so we'll make a new one. This
     // allows us to build the query outside of the adapter if needed.
     if (Ember.isEmpty(query)) {
       // Initiate new instance with params if supplied
       // Inject _params into params object 
-      let es = new EsQuery(extend(esParams, _params));
+      let es = new QueryDSL(params);
 
-      // Add in query if supplied in params;
-      if (params.query) {
-        es.addBool({"query_string": {"query": params.query}});
-      }
-      query = es.buildQuery();
+      query = es.getQuery();
     }
 
     return fetch(url, {
@@ -112,7 +109,7 @@ export default RESTAdapter.extend({
           if (_resp.error) {
             console.log('updateRecord Error');
             console.log(_resp);
-            return Ember.RSVP.reject(new DS.InvalidError([
+            return RSVP.reject(new DS.InvalidError([
               {
                 message: _resp.error.reason,
                 cause: _resp.error.caused_by.reason,
