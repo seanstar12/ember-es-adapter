@@ -4,6 +4,7 @@ import extend from 'ember-es-adapter/utils/extend';
 
 const defaultQuerySize = 20;
 
+
 /**
 * ElasticSearch Tools for interfacing
 *
@@ -115,10 +116,7 @@ class QueryDSL {
 
   constructor (opts) {
     this.opts = JSON.parse(JSON.stringify(opts)) || null;
-    this.sort = [];
-    this.options = this._options(opts);
-    this._defaultSortSet = false;
-
+    this._query = {};
   }
 
   /**
@@ -148,35 +146,201 @@ class QueryDSL {
     return options;
   }
 
-  query() {
-    this._query = { query: {} };
+  query(options) {
+    if (options == null) {
+      options = {};
+    }
+
+    this._query = { query: options };
+    this._compound = 'query';
+
     return this;
+  }
+
+  sort(options) {
+    if (this._query.sort) {
+      this._query['sort'].push(options);
+    }
+    else {
+      if (!Array.isArray(options)) {
+        options = [options];
+      }
+
+      this._query['sort'] = options;
+    }
+
+    return this;
+  }
+
+  filter(options) {
+    if (options == null) {
+      options = {};
+    }
+
+    this._query['filter'] = options;
+    this._compound = 'filter';
+
+    return this;
+  }
+
+  highlight(options) {
+    if (options == null) {
+      options = {};
+    }
+
+    this._query['highlight'] = options;
+    this._parent = ['highlight'];
+
+    return this;
+  }
+
+  // only for highlight
+  fields(options) {
+    return this._addObj('fields', options);
   }
 
   match(options) {
-    this._add('match', options);
-    return this;
+    return this._add('match', options);
   }
 
   match_phrase(options) {
-    this._add('match_phrase', options);
-    return this;
+    return this._add('match_phrase', options);
   }
 
   multi_match(options) {
-    this._add('multi_match', options);
-    return this;
+    return this._add('multi_match', options);
+  }
+
+  common_terms(options) {
+    return this._add('common', options);
+  }
+
+  query_string(options) {
+    return this._add('query_string', options);
+  }
+
+  simple_query_string(options) {
+    return this._add('simple_query_string', options);
+  }
+
+  term(options) {
+    return this._add('term', options);
+  }
+
+  terms(options) {
+    return this._add('terms', options);
+  }
+
+  range(options) {
+    return this._add('range', options);
+  }
+
+  exists(options) {
+    return this._add('exists', options);
+  }
+
+  prefix(options) {
+    return this._add('prefix', options);
+  }
+
+  wildcard(options) {
+    return this._add('wildcard', options);
+  }
+
+  regexp(options) {
+    return this._add('regexp', options);
+  }
+
+  fuzzy(options) {
+    return this._add('fuzzy', options);
+  }
+
+  type(options) {
+    return this._add('type', options);
+  }
+
+  ids(options) {
+    return this._add('ids', options);
   }
 
   bool(kind) {
-    this._addParent('bool', kind);
-    return this;
+    return this._addCompound('bool', kind);
   }
 
-  getThis() {
+  /**
+  * Public:  
+  * Adds size to query
+  
+  * @method size
+  * @param {Integer} size Size of query
+  * @return {Object} Returns this for chaining.
+  */
+  size(size) {
+    return this._addToQuery('size', size);
+  }
+
+  /**
+  * Public:  
+  * Adds from to query
+  
+  * @method from
+  * @param {Integer} from Start of offset for query
+  * @return {Object} Returns this for chaining.
+  */
+  from(from) {
+    return this._addToQuery('from', from);
+  }
+
+  /**
+  * Public:  
+  * Gets full query ready to send to elasticsearch
+  
+  * @method getQuery
+  * @return {Object} Returns query object.
+  */
+  getQuery() {
+    if (this.opts) {
+      let opts = this.opts,
+          keys = Object.getOwnPropertyNames(opts);
+
+      for (let i=0; i < keys.length; i++) {
+        if (typeof this[keys[i]] === "function") {
+          if (keys[i] === 'query') {
+            this._query['query'] = {
+              "query_string": {"query": opts[keys[i]]}
+            };
+          }
+          else {
+            this[keys[i]](opts[keys[i]]);
+          }
+        }
+      }
+    }
     return this._query;
   }
 
+  /**
+  * Private:  
+  * Gets context for debugging
+  
+  * @method getThis
+  * @private
+  * @return {Object} Returns this
+  */
+  getThis() {
+    return this;
+  }
+
+  /**
+  * Private:  
+  * Adds item to query
+  
+  * @method _addCompound
+  * @private
+  * @param {String} type Type of item being added to query
+  * @param {String} kind Kind of item being added to query.
+  * @return {Object} Returns this for chaining.
+  */
   _add(type, options) {
     if (options == null) {
       options = {};
@@ -185,241 +349,105 @@ class QueryDSL {
     let params = {};
     params[type] = options;
 
-    return this._query.query[type] = options;
-  }
+    if (this._parent) {
+      // using eval so we can have objects of any length
+      eval('this._query.' + this._parent.join('.')).push(params);
+    }
+    else {
+      this._query.query = params;
+    }
 
-  _addParent(type, kind) {
-    let params = {};
-    params[type] = {};
-    params[type][kind] = {};
-
-    return this._query[type] = params;
+    return this;
   }
 
   /**
   * Private:  
-  * Convert page to offset for use with pagination
+  * Adds Object to _parent path. Used only for highlight right now
   
-  * @method _getOffsetFromPage
+  * @method _addObj
+  * @private
+  * @param {String} type Type of item being added to query
+  * @param {Object} options Overrideable contents for highlight
+  * @return {Object} Returns this for chaining.
+  */
+  _addObj(type, options) {
+    if (options == null) {
+      options = {};
+    }
+
+    // using eval so we can have objects of any length
+    eval('this._query.' + this._parent.join('.'))[type] = options;
+
+    return this;
+  }
+
+  /**
+  * Private:  
+  * Adds compound query type to query
+  
+  * @method _addCompound
+  * @private
+  * @param {String} type Type of item being added to query
+  * @param {String} kind Kind of item being added to query.
+  * @param {Array} path Custom path if desired.
+  * @return {Object} Returns this for chaining.
+  */
+  _addCompound(type, kind, path) {
+    path = path ? path : [this._compound, type, kind];
+
+    if (!this._query[path[0]]) {
+      this._query[path[0]] = {};
+    }
+    else if (!this._query[path[0]][type]) {
+      this._query[path[0]][type] = {};
+    }
+    this._query[path[0]][type][kind] = [];
+
+    this._parent = path;
+
+    return this;
+  }
+
+  
+  /**
+  * Private:  
+  * Adds any passed variable to the root of the returned query
+  
+  * @method _addToQuery
+  * @private
+  * @param {String} type Type of item being added to root of query
+  * @param {Object||String||Array} options Object being added to query.
+  * @return {Object} Returns this for chaining.
+  */
+  _addToQuery(type, options) {
+    if (options == null) {
+      options = "";
+    }
+
+    this._query[type] = options;
+
+    return this;
+  }
+
+
+  /**
+  * Private:  
+  * Convert page to offset for use with pagination
+  * @TODO: could cause race condition if size ins't
+  * set first
+  * 
+  * @method page
   * @private
   * @param {Integer} page Page that request is on.
   * @param {Integer} size Size of pages (optional).
   * @return {Integer} Returns offset.
   */
-  _getOffsetFromPage(page, size) {
-    size = size ? size : defaultQuerySize;
+  page(page) {
+    let size = this._query.size ? this._query.size : defaultQuerySize;
   
-    return page * size;
+    this.from(page * size);
   }
   
-  /**
-  * Public: 
-  * Returns options from the class.
-  *
-  * @method getOptions
-  * @return {Object} { 'sortType': 'desc', 'sort': '_score' }
-  */
-  getOptions() {
-    return this.options;
-  }
-  
-  /**
-  * Private: 
-  * Generates the template for a "Bool" query.
-  *   ```json
-  *   {
-  *     "query": {
-  *       "bool": {
-  *         "must": [],  
-  *         "filter": [],  
-  *         "must_not": [],  
-  *         "should": [],  
-  *       }
-  *     }
-  *   }
-  *   ```
-  *
-  * @method _templateBoolQuery
-  * @private
-  * @return {Object} Returns the default structure for the query.
-  */
-  _templateBoolQuery() {
-    return {
-       "query": {
-         "bool": {
-           "must": [],  
-           "filter": [],  
-           "must_not": [],  
-           "should": []
-         }
-       }
-    };
-  }
-  
-  /**
-  * Adds a sort param. Takes a string or object. These are stackable
-  * so multiple sorts can be applied.
-  * 
-  *   ```json
-  *   Example use:
-  *   let es, myQuery;
-  *   es = new esQuery();
-  *   es.addSort('title');
-  *   es.addSort({'date' : { 'order': 'asc'}});
-  *   ```
-  *
-  *   ```json
-  *   Example Sorts
-  *   `simple sort`
-  *   "user"
-  *
-  *   `less simple sort`
-  *   { "name": "asc" }
-  *
-  *   `complexish simple sort`
-  *   { "post_date": { "order": "asc"} }
-  *
-  * @method addSort
-  * @param {Object} sort Sort object/string to be added.
-  */
-  addSort(sort) {
-    this.sort.push(sort);
-  }
-  
-  /**
-  * Adds a sort param.
-  *
-  * @method _addDefaultSort
-  * @private
-  */
-  _addDefaultSort() {
-    let options = this.options;
-    let sort;
-  
-    if (options.sort) {
-      if (options.sortType) {
-        let defaultSort = {};
-
-        defaultSort[options.sort] = options.sortType;
-        sort = defaultSort;
-      }
-      else {
-        sort = options.sort;
-      }
-  
-      this._defaultSortSet = true;
-      this.addSort(sort);
-    }
-  }
-  
-  /**
-  * Public: 
-  * Adds a query to Bool. Allows for complex queries.
-  *
-  *   ```json
-  *   Example objects:
-  * 
-  *   `complex match`
-  *   {
-  *     "match": {
-  *       "message": {
-  *         "query": "to be or not to be",
-  *         "operator": "and",
-  *         "zero_terms_query": "all"
-  *       }
-  *     }
-  *   }
-  * 
-  *   `simple match`
-  *   {
-  *     "match": {
-  *       "message": "this is a test"
-  *     }
-  *   }
-  * 
-  *   `other queries`
-  *   {
-  *     "term": {
-  *       "tag": "tech"
-  *     }
-  *   }
-  *   ```
-  *
-  * @method addBool
-  * @param {Object} query Query parameters
-  * @param {String} type Type of Bool query should be applied to. 
-  *                 [must,filter,must_not,should]. Defaults to 'must'.
-  */
-  addBool(obj, type) {
-    type = type ? type : 'must';
-    
-    this._addBool(obj, type);
-  }
-  
-  /**
-  * Private: 
-  * Adds a query to Bool. Secrely.
-  *
-  * @method _addBool
-  * @private
-  * @param {Object} query Query parameters
-  * @param {String} type Type of Bool query should be applied to. 
-  *                 [must,filter,must_not,should]. Defaults to 'must'.
-  */
-  _addBool(obj, type) {
-    let query = this.query.query;
-
-    if (query.bool[type]) {
-      if (typeof obj === 'object') {
-        query.bool[type].push(obj);
-      }
-    }
-  }
-  
-  /**
-  * Public: 
-  * Adds a query to Bool with the type 'match'.
-  *   ```json
-  *   {
-  *     "match": {
-  *       "{field}": "{value}"
-  *     }
-  *   }
-  *   ```
-  *
-  * @method addBoolMatchField
-  * @param {String} field Field name to run query against.
-  * @param {String} value Value of field.
-  */
-  addBoolMatchField(fieldName, value) {
-    let bool = {
-      "match": {}
-    };
-  
-    bool.match[fieldName] = value;
-  
-    this._addBool(bool, 'must');
-  }
-  
-  /**
-  * Public: 
-  * Builds the return query.
-  *
-  * @method buildQuery
-  * @return {Object} Returns full query object.
-  */
-  buildQuery() {
-    if (!this._defaultSortSet) {
-      this._addDefaultSort();
-    }
-  
-    let sort = this.sort;
-    let query = this.query;
-    let { from, size } = this.options;
-  
-    return { query, sort, from, size };
-  }
-
 }
 
 export {
