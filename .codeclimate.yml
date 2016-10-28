@@ -4,6 +4,8 @@ engines:
     enabled: true
     exclude_fingerprints:
       - c32fcfbf63c1f4f0b23f68f3341dd5ce
+      - 96017ff5367524199e2871ab4b61b548
+      - f2c6514f402d653a65e3e7d470b50a9f
     config:
       languages:
       - ruby
@@ -25,4 +27,5 @@ ratings:
   - "**.rb"
 exclude_paths:
 - config/
+- docs/
 - tests/

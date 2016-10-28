@@ -28,15 +28,6 @@ export default DS.JSONAPISerializer.extend({
     return data;
   },
 
-  extractErrors(store, typeClass, payload, id) {
-    console.log('extract errors');
-    let bleh = "this is it";
-    console.log({typeClass, bleh, payload, id});
-
-    return payload;
-  },
-
-
   /**
    * Converts ElasticSearch server responses into the format expected by the JSONAPISerializer.
    *
@@ -121,9 +112,7 @@ export default DS.JSONAPISerializer.extend({
   },
 
   normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
-    console.log('[es-adapter][serializer]:[normalizeSingleCreateRecordResponse]');
-    console.log({primaryModelClass, payload, id, requestType});
+    //console.log('[es-adapter][serializer]:[normalizeSingleCreateRecordResponse]');
   	return this.normalizeSaveResponse(...arguments);
-  },
-
+  }
 });
