@@ -1,7 +1,6 @@
 import RESTAdapter from 'ember-data/adapters/rest';
 import DS from 'ember-data';
 import {QueryDSL} from 'ember-es-adapter/utils/es-tools';
-import extend from 'ember-es-adapter/utils/extend';
 import config from 'ember-get-config';
 import Ember from 'ember';
 
