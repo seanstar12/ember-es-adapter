@@ -69,10 +69,11 @@ progress, but allows me to have a use-case to build the adapter.
       - [x] Add prototype for detecting page (pagination API)
       - [ ] Add full documentation (yui comments)
       - [x] Make it work
+      - [x] Better Readme Examples
   - [ ] Make all the tests
     - [ ] The adapter
     - [ ] The serializer
-    - [x] The es-query-builder
+    - [ ] The QueryDSL
 
 #### The gameplan [0.1.5]
   - [ ] Add functionality to the Adapter
