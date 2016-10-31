@@ -153,23 +153,7 @@ test('Builds Complex Query with sort and constructor', function(assert) {
   };
 
   es = new QueryDSL(cons);
-  es.query({
-    query: {
-      bool: {
-        must: [{
-          match: {
-            message: {
-              'query': 'to be or not to be',
-              'operator': 'and',
-              'zero_terms_query': 'all'
-            }
-          }
-        }]
-      }
-    },
-    from: 2,
-    size: 17
-  });
+  es.query(expected);
 
   query = es.getQuery();
   assert.deepEqual(query, expected, "Query was overloaded properly");
