@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import env from 'dummy/config/environment';
-//import config from 'ember-get-config';
 
 const defaultQuerySize = 20;
 
