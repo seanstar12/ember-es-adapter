@@ -17,16 +17,12 @@ module.exports = function(environment) {
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-    },
-
-    EsAdapter: {
-      accessKey: '0123456789ABCDEF',
-      secretKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
-      date: '2012-02-15T01:00:00',
-      dateStamp: '20120215',
-      regionName: 'us-east-1',
-      serviceName: 'es',
+      EsAdapter: {
+        host: 'localhost',
+        namespace: 'test'
+      }
     }
+
   };
 
   if (environment === 'development') {
