@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import config from 'ember-get-config';
+import env from 'dummy/config/environment';
+//import config from 'ember-get-config';
 
 const defaultQuerySize = 20;
 
@@ -12,9 +13,13 @@ const defaultQuerySize = 20;
 */
 class EsTools {
 
-  constructor () {
-    this.host = config.APP.EsAdapter.host;
-    this.namespace = config.APP.EsAdapter.namespace;
+  constructor (opts) {
+    if (opts == null) {
+      opts = {};
+    }
+
+    this.host = opts.host || env.APP.EsAdapter.host;
+    this.namespace = opts.namespace || env.APP.EsAdapter.namespace;
   }
 
   /**
@@ -114,16 +119,17 @@ class EsTools {
 class QueryDSL {
 
   constructor (opts) {
-    this.opts = JSON.parse(JSON.stringify(opts)) || null;
-    this._query = {};
+    this._query = { query: {}};
+
+    this._getOptions(opts);
   }
 
   query(options) {
     if (options == null) {
-      options = {};
+      options = this._query;
     }
 
-    this._query = { query: options };
+    this._query = options;
     this._compound = 'query';
 
     return this;
@@ -271,22 +277,10 @@ class QueryDSL {
   * @return {Object} Returns query object.
   */
   getQuery() {
-    if (this.opts) {
-      let opts = this.opts,
-          keys = Object.getOwnPropertyNames(opts);
-
-      for (let i=0; i < keys.length; i++) {
-        if (typeof this[keys[i]] === "function") {
-          if (keys[i] === 'query') {
-            this._query['query'] = {
-              "query_string": {"query": opts[keys[i]]}
-            };
-          }
-          else {
-            this[keys[i]](opts[keys[i]]);
-          }
-        }
-      }
+    // needs to run just before query incase user added
+    // page or size to query.
+    if (this.opts && this.opts.page) {
+      this.page(this.opts.page);
     }
     return this._query;
   }
@@ -419,7 +413,38 @@ class QueryDSL {
   
     this.from(page * size);
   }
-  
+
+  /**
+  * Private:  
+  * Sets options if passed in
+  * 
+  * @method _getOptions
+  * @private
+  * @param {Object} opts Options passed in.
+  * @return {Object} Returns Object for opts.
+  */
+  _getOptions(opts) {
+    if (opts) {
+      this.opts = opts;
+
+      let keys = Object.getOwnPropertyNames(opts);
+
+      // Goes through passed in options and runs their
+      // related function for them i.e. "size" runs the size function
+      for (let i=0; i < keys.length; i++) {
+        if (typeof this[keys[i]] === "function") {
+          if (keys[i] === 'query') {
+            this._query['query'] = {
+              "query_string": {"query": opts[keys[i]]}
+            };
+          }
+          else {
+            this[keys[i]](opts[keys[i]]);
+          }
+        }
+      }
+    }
+  }
 }
 
 export {
