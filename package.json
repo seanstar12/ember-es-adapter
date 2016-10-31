@@ -24,8 +24,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "ember-cli-babel": "^5.1.6",
-    "ember-get-config": "^0.1.11"
+    "ember-cli-babel": "^5.1.6"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.2",
@@ -48,7 +47,10 @@
     "ember-export-application-global": "^1.0.5",
     "ember-load-initializers": "^0.5.1",
     "ember-resolver": "^2.0.3",
-    "loader.js": "^4.0.1"
+    "express": "^4.14.0",
+    "glob": "^4.5.3",
+    "loader.js": "^4.0.1",
+    "morgan": "^1.7.0"
   },
   "keywords": [
     "ember-addon",
