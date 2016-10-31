@@ -95,6 +95,18 @@ progress, but allows me to have a use-case to build the adapter.
 
 #### How to use this
 
+  * Elasticsearch
+    
+  ```javascript
+  // datatypes are pluralized
+  // and the content is accessed 
+  blog //index
+  |- posts 
+   |- post-id
+  |- pages
+   |- page-id
+  ```
+
   * Adapter 
 
   ```javascript
