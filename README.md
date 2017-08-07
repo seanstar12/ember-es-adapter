@@ -124,7 +124,7 @@ progress, but allows me to have a use-case to build the adapter.
 
   ```javascript
   `your_app/serializers/your_serializer.js`
-  import Es from 'ember-es-adapter/serializer/serializer';
+  import Es from 'ember-es-adapter/serializers/serializer';
   export default Es.extend({
   });
   ```
