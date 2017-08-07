@@ -1,46 +1,84 @@
-import RESTAdapter from 'ember-data/adapters/rest';
 import DS from 'ember-data';
 import {QueryDSL} from 'ember-es-adapter/utils/es-tools';
 import Ember from 'ember';
+import fetch from 'fetch';
 
-export default RESTAdapter.extend({
-
+export default DS.JSONAPIAdapter.extend({
   urlForCreateRecord(modelName, snapshot) {
+    //Ember.Logger.info('[ES-Adapter][urlForCreateRecord]');
     return [this.buildURL(modelName), snapshot.id].join('/');
   },
 
+  //used for GET requests from elasticsearch
+  urlForQuery(query, modelName) {
+    // http://stackoverflow.com/a/34209399/707580
+    const esc = encodeURIComponent;
+    const get = Object.keys(query)
+          .map(k => esc(k) + '=' + esc(query[k]))
+          .join('&');
+
+    const model = this._super.apply(this, arguments);
+    const url = [model, '_search'].join('/');
+
+    return [url, get].join('?');
+  },
+
   query(store, type, params) {
-    const url = [this.buildURL(type.modelName), '_search'].join('/');
+    let options = {};
+    let query;
 
-    let query = Ember.get(params, 'esQuery') || null;
+    if (params.method === 'get') {
+      query = {
+        size: params.size,
+        from: params.from,
+        sort: params.sort,
+        q: this.buildGetQuery(params.query)
+      };
 
-    // No EsQuery object was supplied, so we'll make a new one. This
-    // allows us to build the query outside of the adapter if needed.
-    if (Ember.isEmpty(query)) {
-      // Initiate new instance with params if supplied
-      // Inject _params into params object 
-      let es = new QueryDSL(params);
+      if (params.hasOwnProperty('_source_include')) {
+        query._source_include = params._source_include;
+      }
+    }
+    else if (params.method === 'post') {
+      let es = new QueryDSL(params.post);
+      let dsl = es.getQuery();
 
-      query = es.getQuery();
+      options = {
+        method: 'post',
+        body: JSON.stringify(dsl),
+      }
     }
 
-    return fetch(url, {
-      method: "POST",
-      body: JSON.stringify(query)
-    })
-    .then(function(resp) {
-      return resp.json();
-    });
+    let url = this.buildURL(type.modelName, null, null, 'query', query);
+
+    //Ember.Logger.debug('[ES-Adapter][query]',{url, params});
+
+    return fetch(url, options).then((resp) => resp.json());
+  },
+
+  buildGetQuery(query) {
+    if (query.hasOwnProperty('items') // we are stil nesting
+        && Ember.isArray(query.items)) {
+      const result = query.items.map(this.buildGetQuery.bind(this));
+      return '('
+           + result.join(' ' + query.type + ' ')
+           + ')';
+    }
+
+    // build out the individual item
+    const esc = encodeURIComponent;
+    return Object.keys(query).map(k => esc(k) + ':' + esc(query[k]));
   },
 
   findAll(store, type) {
+    //Ember.Logger.info('[ES-Adapter][findAll]');
     const url = [this.buildURL(type.modelName), '_search'].join('/');
 
     let es = new QueryDSL({ 'size': 10000 });
 
     return fetch(url, {
       method: "post",
-      body: JSON.stringify(es.buildQuery())
+      body: JSON.stringify(es.getQuery())
     })
     .then(function(resp) {
       return resp.json();
@@ -48,6 +86,7 @@ export default RESTAdapter.extend({
   },
 
   createRecord(nodelName, type, snapshot) {
+    //Ember.Logger.info('[ES-Adapter][createRecord]');
     let data = {},
         serializer = this.store.serializerFor(type.modelName);
 
@@ -55,7 +94,7 @@ export default RESTAdapter.extend({
 
     let id = snapshot.id,
         url = this.buildURL(type.modelName, id, snapshot, 'createRecord');
-    
+
     url = [url, '_create'].join('/');
 
     return fetch(url, {
@@ -65,10 +104,10 @@ export default RESTAdapter.extend({
     .then(function(resp) {
       return resp.json();
     });
-
   },
 
   updateRecord(nodelName, type, snapshot) {
+    //Ember.Logger.info('[ES-Adapter][updateRecord]');
     let data = {},
         serializer = this.store.serializerFor(type.modelName);
 
@@ -82,14 +121,14 @@ export default RESTAdapter.extend({
       body: JSON.stringify(data)
     })
     .then(function(resp) {
-      console.log(resp);
+      //console.log(resp);
       return resp.json()
         .then((_resp) => {
-          console.log('updateRecord');
-          console.log(_resp);
+          //console.log('updateRecord');
+          //console.log(_resp);
           if (_resp.error) {
-            console.log('updateRecord Error');
-            console.log(_resp);
+            //console.log('updateRecord Error');
+            //console.log(_resp);
             return Ember.RSVP.reject(new DS.InvalidError([
               {
                 message: _resp.error.reason,
@@ -106,11 +145,38 @@ export default RESTAdapter.extend({
 
   },
 
-  handleResponse: function(status, headers, payload){
-    console.log('handle response');
-    console.log({status, headers, payload}); 
+  //normalizeErrorResponse: function(status, headers, payload) {
+  //  Ember.Logger.debug('[ES-Adapter][normalizeErrorResponse]', {status, headers, payload});
+  //  if (payload && typeof payload === 'object' && payload.errors) {
+  //    return payload.errors;
+  //  } else {
+  //    return [
+  //      {
+  //        status: `${status}`,
+  //        title: "The backend responded with an error",
+  //        detail: `${payload}`
+  //      }
+  //    ];
+  //  }
+  //},
 
-    return this._super(...arguments);
+  handleResponse: function(status, headers, payload){
+    //Ember.Logger.debug('[ES-Adapter][handleResponse]');
+
+    if (typeof payload === 'undefined') payload = {};
+
+    if (String(status).charAt(0) === '4' || String(status).charAt(0) === '5') {
+      payload['errors'] = [];
+
+      payload.errors.push({
+        status: `${status}`,
+        title: "Not Found",
+        detail: "Document " + payload._id + " was not found"
+      });
+      return DS.AdapterError(payload.errors, "Document " + payload._id + " was not found");
+    }
+
+    return this._super(status, headers, payload);
   }
 
 });
