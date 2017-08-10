@@ -46,6 +46,7 @@ export default DS.JSONAPIAdapter.extend({
       options = {
         method: 'post',
         body: JSON.stringify(dsl),
+        headers: this.headersForRequest()
       }
     }
 
@@ -78,7 +79,8 @@ export default DS.JSONAPIAdapter.extend({
 
     return fetch(url, {
       method: "post",
-      body: JSON.stringify(es.getQuery())
+      body: JSON.stringify(es.getQuery()),
+      headers: this.headersForRequest()
     })
     .then(function(resp) {
       return resp.json();
@@ -99,7 +101,8 @@ export default DS.JSONAPIAdapter.extend({
 
     return fetch(url, {
       method: "post",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: this.headersForRequest()
     })
     .then(function(resp) {
       return resp.json();
@@ -118,7 +121,8 @@ export default DS.JSONAPIAdapter.extend({
 
     return fetch(url, {
       method: "post",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: this.headersForRequest()
     })
     .then(function(resp) {
       //console.log(resp);
