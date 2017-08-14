@@ -54,7 +54,7 @@ export default DS.JSONAPIAdapter.extend({
 
     //Ember.Logger.debug('[ES-Adapter][query]',{url, params});
 
-    return fetch(url, options).then((resp) => resp.json());
+    return fetch(url, options).then((resp) => this.handleResponse(resp.status, resp.headers, resp.json(), { url: resp.url} ));
   },
 
   buildGetQuery(query) {
@@ -82,8 +82,8 @@ export default DS.JSONAPIAdapter.extend({
       body: JSON.stringify(es.getQuery()),
       headers: this.headersForRequest()
     })
-    .then(function(resp) {
-      return resp.json();
+    .then((resp) => {
+      return this.handleResponse(resp.status, resp.headers, resp.json(), { url: resp.url} );
     });
   },
 
@@ -104,8 +104,8 @@ export default DS.JSONAPIAdapter.extend({
       body: JSON.stringify(data),
       headers: this.headersForRequest()
     })
-    .then(function(resp) {
-      return resp.json();
+    .then((resp) => {
+      return this.handleResponse(resp.status, resp.headers, resp.json(), { url: resp.url} );
     });
   },
 
@@ -124,7 +124,7 @@ export default DS.JSONAPIAdapter.extend({
       body: JSON.stringify(data),
       headers: this.headersForRequest()
     })
-    .then(function(resp) {
+    .then((resp) => {
       //console.log(resp);
       return resp.json()
         .then((_resp) => {
